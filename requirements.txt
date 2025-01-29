@@ -3,3 +3,7 @@ geopandas
 rasterio
 requests
 numpy
+cdsapi
+shapely
+xarray
+netCDF4

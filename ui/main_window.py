@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from datetime import datetime
 import json
+import geopandas as gpd
 import os
 import subprocess
 from pathlib import Path
@@ -144,8 +145,11 @@ class ForestFireApp(QMainWindow):
 
         # Validate date formats
         try:
-            datetime.strptime(start_date, "%Y-%m-%d")
-            datetime.strptime(end_date, "%Y-%m-%d")
+            start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+            end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+            if start_dt > end_dt:
+                QMessageBox.warning(self, "Input Error", "Start date must be before or equal to End date.")
+                return
         except ValueError:
             QMessageBox.warning(self, "Input Error", "Dates must be in YYYY-MM-DD format.")
             return
@@ -154,6 +158,7 @@ class ForestFireApp(QMainWindow):
         base_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent
         data_folder = base_dir / "data"
         climate_folder = data_folder / "climate"
+        grid_folder = data_folder / "grid" / province
         output_folder = base_dir / "output" / "requests"
 
         os.makedirs(climate_folder, exist_ok=True)
@@ -174,7 +179,6 @@ class ForestFireApp(QMainWindow):
 
         # Extract bounding box from the grid shapefile
         try:
-            import geopandas as gpd
             gdf = gpd.read_file(grid_shapefile)
             bounding_box = list(gdf.total_bounds)  # [minx, miny, maxx, maxy]
         except Exception as e:
@@ -186,13 +190,18 @@ class ForestFireApp(QMainWindow):
             start_dt = datetime.strptime(start_date, "%Y-%m-%d")
             end_dt = datetime.strptime(end_date, "%Y-%m-%d")
             year = start_dt.year
-            months = list(range(start_dt.month, end_dt.month + 1))
+            # Handle multiple years if needed
+            months = list(range(start_dt.month, end_dt.month + 1)) if start_dt.year == end_dt.year else list(range(1, 13))
         except Exception as e:
             QMessageBox.warning(self, "Date Error", f"Error processing dates: {e}")
             return
 
+        # Paths for backend modules
+        credentials_path = data_folder / "credentials" / "credentials.json"
+        access_token_path = data_folder / "credentials" / "access_token.json"
+
         # Step 1: Fetch Climate Data
-        fetch_climate_data(bounding_box, year, months, str(request_dir / "Climate"))
+        fetch_climate_data(bounding_box, start_date, end_date, str(request_dir / "Climate"))
 
         QMessageBox.information(self, "Success", f"Climate data processing completed.\nOutput saved to: {request_dir / 'Climate'}")
 
