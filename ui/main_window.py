@@ -15,7 +15,7 @@ from pathlib import Path
 
 # Import backend modules
 from modules.credentials_manager import load_or_update_credentials, save_credentials
-from modules.climate_data_fetcher import fetch_climate_data
+from modules.climate_data_fetcher import fetch_climate_data, fetch_climate_data_for_range
 
 class CustomOutput:
     """Redirect stdout to the QTextEdit widget."""
@@ -181,6 +181,7 @@ class ForestFireApp(QMainWindow):
         try:
             gdf = gpd.read_file(grid_shapefile)
             bounding_box = list(gdf.total_bounds)  # [minx, miny, maxx, maxy]
+            print(f"[UI] Bounding box for {province}: {bounding_box}")
         except Exception as e:
             QMessageBox.warning(self, "Shapefile Error", f"Failed to read shapefile: {e}")
             return
@@ -201,7 +202,12 @@ class ForestFireApp(QMainWindow):
         access_token_path = data_folder / "credentials" / "access_token.json"
 
         # Step 1: Fetch Climate Data
-        fetch_climate_data(bounding_box, start_date, end_date, str(request_dir / "Climate"))
+        print(bounding_box)
+        print(start_date)
+        print(end_date)
+        print(request_dir)
+        print(grid_shapefile)
+        fetch_climate_data_for_range(bounding_box, start_date, end_date, str(request_dir / "Climate"),grid_shapefile)
 
         QMessageBox.information(self, "Success", f"Climate data processing completed.\nOutput saved to: {request_dir / 'Climate'}")
 
