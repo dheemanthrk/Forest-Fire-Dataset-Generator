@@ -4,6 +4,7 @@ geopandas
 matplotlib
 plotly
 scikit-learn
-imblearn
+imbalanced-learn
 numpy
 subprocess
+netCDF4
