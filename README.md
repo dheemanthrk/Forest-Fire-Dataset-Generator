@@ -36,6 +36,57 @@ A comprehensive tool for processing **climate**, **NDVI**, **fire history**, and
 
 ---
 
+Here's the updated **README** section on setting up **CDS API credentials**, including how to obtain them and configure `.cdsapirc`.
+
+---
+
+## 🔑 Setting Up CDS API Credentials
+
+The **CDS API** (Copernicus Data Service) is required to fetch climate and topographical data. Follow these steps to set up your credentials:
+
+### 1️⃣ **Create a CDS Account**
+1. Go to the **Copernicus Climate Data Store (CDS)**:  
+   [https://cds.climate.copernicus.eu/user/register](https://cds.climate.copernicus.eu/user/register)
+2. Register for an account and verify your email.
+3. Once logged in, go to **My Account** → **API key**.
+
+### 2️⃣ **Locate Your API Credentials**
+Your CDS API key will look something like this:
+
+```
+url: https://cds.climate.copernicus.eu/api/v2
+key: 12345678-abcd-1234-efgh-56789abcdefg
+```
+
+### 3️⃣ **Set Up `.cdsapirc` File**
+You need to store your API credentials in a hidden file `.cdsapirc` in your **home directory**.
+
+#### 📍 **On Linux/Mac:**
+1. Open a terminal and run:
+   ```sh
+   nano ~/.cdsapirc
+   ```
+2. Paste the following content, replacing `your-key`:
+   ```
+   url: https://cds.climate.copernicus.eu/api/v2
+   key: 12345678-abcd-1234-efgh-56789abcdefg
+   verify: 0
+   ```
+3. Save and exit (`CTRL + X`, then `Y`, then `ENTER`).
+
+#### 📍 **On Windows:**
+1. Open **Notepad** and paste the API key in the same format as above.
+2. Save it as `.cdsapirc` in `C:\Users\YourUsername\`.
+3. Make sure the file type is **All Files (`*.*`)** and not `.txt`.
+
+### 4️⃣ **Verify Installation**
+After setting up the credentials, verify they are working by running:
+```sh
+python -c "import cdsapi; c = cdsapi.Client(); print('CDS API setup successful!')"
+```
+
+If there are no errors, your CDS API is correctly configured! ✅
+
 ## 🔧 Setup Instructions
 
 1. **Clone the repository:**
