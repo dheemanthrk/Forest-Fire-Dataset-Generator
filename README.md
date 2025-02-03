@@ -34,12 +34,6 @@ A comprehensive tool for processing **climate**, **NDVI**, **fire history**, and
 ├── 📜 README.md                 # You're reading it! 📖
 ```
 
----
-
-Here's the updated **README** section on setting up **CDS API credentials**, including how to obtain them and configure `.cdsapirc`.
-
----
-
 ## 🔑 Setting Up CDS API Credentials
 
 The **CDS API** (Copernicus Data Service) is required to fetch climate and topographical data. Follow these steps to set up your credentials:
