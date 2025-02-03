@@ -650,12 +650,12 @@ class ForestFireApp(QMainWindow):
             df = pd.read_csv(file_path)
 
             # Step 4: Check if the 'fire_occurred' column exists
-            if 'fire_occurred' not in df.columns:
+            if 'Fire_Occurred' not in df.columns:
                 QMessageBox.critical(self, "Missing Column", "The file must contain a 'fire_occurred' column.")
                 return
 
             # Step 5: Calculate class distribution
-            class_counts = df['fire_occurred'].value_counts()
+            class_counts = df['Fire_Occurred'].value_counts()
             num_zeros = class_counts.get(0.0, 0)
             num_ones = class_counts.get(1.0, 0)
 
