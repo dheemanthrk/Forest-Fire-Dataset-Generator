@@ -8,7 +8,7 @@ def merge_final_dataset(request_id, start_date, end_date, base_output_dir="Outpu
     Filters the final dataset to include only rows within the given date range.
 
     Args:
-        request_id (str): The request ID folder name (e.g., "Request_20250203_0158").
+        request_id (str): The request ID folder name (e.g., "Request_YYYYMMDD_HHMM").
         start_date (str): Start date in YYYY-MM-DD format.
         end_date (str): End date in YYYY-MM-DD format.
         base_output_dir (str): Base directory for storing output files.
@@ -59,17 +59,27 @@ def merge_final_dataset(request_id, start_date, end_date, base_output_dir="Outpu
     # 🔥 Merge Fire History Data (on grid_id & Date)
     if "fire" in datasets:
         fire_df = datasets["fire"]
-        
+
         # 🔄 Ensure Fire Data has 'Date' Column
-        if "Date" not in fire_df.columns:
-            print("⚠️ WARNING: Fire data missing 'Date' column. Renaming 'date' to 'Date'.")
+        if "Date" not in fire_df.columns and "date" in fire_df.columns:
             fire_df.rename(columns={"date": "Date"}, inplace=True)
 
         fire_df["Date"] = pd.to_datetime(fire_df["Date"])
 
+        # ✅ Compute `Total_Fire_Size` (Sum of Fire_Size_HA for each grid_id, Date)
+        fire_df["Total_Fire_Size"] = fire_df.groupby(["grid_id", "Date"])["Fire_Size_HA"].transform("sum")
+
+        # ✅ Compute `Fire_Occurred`: 1 if fire exists, 0 otherwise
+        fire_df["Fire_Occurred"] = fire_df["Fire_Size_HA"].apply(lambda x: 1 if x > 0 else 0)
+
+        # ✅ Drop duplicate rows (keep one row per `grid_id`, `Date`)
+        fire_df = fire_df.drop_duplicates(subset=["grid_id", "Date"]).copy()
+
         merged_df = merged_df.merge(
-            fire_df, on=["grid_id", "Date"], how="left", suffixes=("", "_fire")
+            fire_df[["grid_id", "Date", "Fire_Cause", "Total_Fire_Size", "Fire_Occurred"]],
+            on=["grid_id", "Date"], how="left"
         )
+
         # ✅ Fill missing Fire History values
         merged_df["Total_Fire_Size"].fillna(0, inplace=True)  # No fire, size = 0
         merged_df["Fire_Occurred"].fillna(0, inplace=True)  # No fire = 0
@@ -87,13 +97,12 @@ def merge_final_dataset(request_id, start_date, end_date, base_output_dir="Outpu
         
         # 🔄 Ensure NDVI Data has 'Date' Column
         if "Date" not in ndvi_df.columns and "date" in ndvi_df.columns:
-            print("⚠️ WARNING: NDVI data missing 'Date' column. Renaming 'date' to 'Date'.")
             ndvi_df.rename(columns={"date": "Date"}, inplace=True)
 
         ndvi_df["Date"] = pd.to_datetime(ndvi_df["Date"])
 
         merged_df = merged_df.merge(
-            ndvi_df, on=["grid_id", "Date"], how="left", suffixes=("", "_ndvi")
+            ndvi_df, on=["grid_id", "Date"], how="left"
         )
         merged_df["ndvi"].fillna(np.nan, inplace=True)  # Missing NDVI = NaN
     else:
@@ -102,7 +111,7 @@ def merge_final_dataset(request_id, start_date, end_date, base_output_dir="Outpu
     # 🏔 Merge Topo Data (Only on grid_id, NOT Date)
     if "topo" in datasets:
         merged_df = merged_df.merge(
-            datasets["topo"], on="grid_id", how="left", suffixes=("", "_topo")
+            datasets["topo"], on="grid_id", how="left"
         )
         merged_df["Elevation"].fillna(np.nan, inplace=True)
         merged_df["Slope"].fillna(np.nan, inplace=True)
