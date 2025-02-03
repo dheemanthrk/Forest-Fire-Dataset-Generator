@@ -1,7 +1,3 @@
-Here's the README file in proper Markdown format. You can copy and paste it directly into your repository as `README.md`.
-
----
-
 # 🔥 Forest Fire Data Processing Tool 🌍
 
 A comprehensive tool for processing **climate**, **NDVI**, **fire history**, and **topographical** data for machine learning-based forest fire prediction.
