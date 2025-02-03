@@ -1,0 +1,9 @@
+PyQt5
+pandas
+geopandas
+matplotlib
+plotly
+scikit-learn
+imblearn
+numpy
+subprocess
