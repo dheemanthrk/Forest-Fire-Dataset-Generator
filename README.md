@@ -182,8 +182,8 @@ Feel free to submit **pull requests** or report **issues**!
 
 ---
 
-🚀 **Developed by:** Your Name  
-📅 **Last Updated:** `YYYY-MM-DD`
+🚀 **Developed by:** Dheemanth 
+📅 **Last Updated:** `2025-02-03`
 
 ---
 
