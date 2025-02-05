@@ -491,13 +491,31 @@ class ForestFireApp(QMainWindow):
         self.terminal_output.clear()
 
     def save_credentials(self):
-        """Save credentials."""
+        """Save CDS API credentials to 'Data/credentials/credentials.json'."""
         username = self.username_input.text().strip()
         password = self.password_input.text().strip()
+
         if not username or not password:
-            self.terminal_output.append("Error: Username and password cannot be empty.")
+            self.terminal_output.append("❌ Error: Username and password cannot be empty.")
             return
-        self.terminal_output.append("Credentials saved successfully.")
+
+        credentials = {
+            "username": username,
+            "password": password
+        }
+
+        # Ensure the directory exists
+        credentials_dir = "Data/credentials"
+        os.makedirs(credentials_dir, exist_ok=True)
+
+        # Save to JSON file
+        credentials_file = os.path.join(credentials_dir, "credentials.json")
+        try:
+            with open(credentials_file, "w") as f:
+                json.dump(credentials, f, indent=4)
+            self.terminal_output.append("✅ Credentials saved successfully.")
+        except Exception as e:
+            self.terminal_output.append(f"❌ Error saving credentials: {str(e)}")
 
     def check_class_distribution(self):
         """Check class distribution from the selected CSV."""
