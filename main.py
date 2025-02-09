@@ -526,7 +526,7 @@ class ForestFireApp(QMainWindow):
 
         try:
             df = pd.read_csv(file_name)
-            class_distribution = df['fire_occurred'].value_counts()
+            class_distribution = df['Fire_Occurred'].value_counts()
             self.terminal_output.append("Class Distribution:")
             self.terminal_output.append(str(class_distribution))
         except Exception as e:
@@ -543,8 +543,8 @@ class ForestFireApp(QMainWindow):
 
         try:
             df = pd.read_csv(file_name)
-            X = df.drop('fire_occurred', axis=1)
-            y = df['fire_occurred']
+            X = df.drop('Fire_Occurred', axis=1)
+            y = df['Fire_Occurred']
 
             if model_type == "Logistic Regression":
                 from sklearn.linear_model import LogisticRegression
@@ -667,9 +667,9 @@ class ForestFireApp(QMainWindow):
             # Step 3: Read the CSV file
             df = pd.read_csv(file_path)
 
-            # Step 4: Check if the 'fire_occurred' column exists
+            # Step 4: Check if the 'Fire_Occurred' column exists
             if 'Fire_Occurred' not in df.columns:
-                QMessageBox.critical(self, "Missing Column", "The file must contain a 'fire_occurred' column.")
+                QMessageBox.critical(self, "Missing Column", "The file must contain a 'Fire_Occurred' column.")
                 return
 
             # Step 5: Calculate class distribution
@@ -716,9 +716,9 @@ class ForestFireApp(QMainWindow):
             # Step 1: Load dataset
             df = pd.read_csv(file_path)
 
-            # Ensure 'fire_occurred' column exists
-            if 'fire_occurred' not in df.columns:
-                QMessageBox.critical(self, "Missing Column", "The file must contain a 'fire_occurred' column.")
+            # Ensure 'Fire_Occurred' column exists
+            if 'Fire_Occurred' not in df.columns:
+                QMessageBox.critical(self, "Missing Column", "The file must contain a 'Fire_Occurred' column.")
                 return
 
             self.terminal_output.append(f"Balancing dataset using {balance_technique} with {sampling_ratio} sampling ratio...")
@@ -729,8 +729,8 @@ class ForestFireApp(QMainWindow):
                 df = df.drop(columns=['date'])  # Drop original date column
 
             # Step 3: Prepare features (X) and target (y)
-            X = df.drop(columns=['fire_occurred'])  # Features
-            y = df['fire_occurred']               # Target
+            X = df.drop(columns=['Fire_Occurred'])  # Features
+            y = df['Fire_Occurred']               # Target
 
             # Ensure all features are numeric
             X = X.select_dtypes(include=[float, int, np.number])
@@ -756,7 +756,7 @@ class ForestFireApp(QMainWindow):
 
             # Combine resampled features and target
             balanced_df = X_resampled.copy()
-            balanced_df['fire_occurred'] = y_resampled
+            balanced_df['Fire_Occurred'] = y_resampled
 
             # Step 6: Save the balanced dataset
             output_path = file_path.replace(".csv", "_balanced.csv")
