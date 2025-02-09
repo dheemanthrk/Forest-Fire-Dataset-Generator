@@ -691,11 +691,6 @@ class ForestFireApp(QMainWindow):
 
     def balance_data(self):
         """Balance the dataset using the selected technique and sampling ratio."""
-        from imblearn.over_sampling import SMOTE
-        from imblearn.under_sampling import NearMiss
-        from imblearn.combine import SMOTEENN
-        import pandas as pd
-        from PyQt5.QtWidgets import QMessageBox
 
         # Get file path
         file_path = self.csv_input.text()
@@ -723,19 +718,26 @@ class ForestFireApp(QMainWindow):
 
             self.terminal_output.append(f"Balancing dataset using {balance_technique} with {sampling_ratio} sampling ratio...")
 
-            # Step 2: Handle date column separately
-            if 'date' in df.columns:
-                df['date_ordinal'] = pd.to_datetime(df['date']).apply(lambda x: x.toordinal())
-                df = df.drop(columns=['date'])  # Drop original date column
+            # Step 2: Handle Date separately
+            if 'Date' in df.columns:  # Correct column name
+                df['Date_Ordinal'] = pd.to_datetime(df['Date']).apply(lambda x: x.toordinal())
+                df.drop(columns=['Date'], inplace=True)  # Drop original Date column
 
-            # Step 3: Prepare features (X) and target (y)
-            X = df.drop(columns=['Fire_Occurred'])  # Features
-            y = df['Fire_Occurred']               # Target
+            # Step 3: Handle categorical and missing values
+            df.fillna(0, inplace=True)  # Replace NaN values with 0
+            if 'Fire_Cause' in df.columns:
+                df.drop(columns=['Fire_Cause'], inplace=True)  # Drop non-numeric column
+            if 'ndvi' in df.columns:
+                df['ndvi'] = pd.to_numeric(df['ndvi'], errors='coerce').fillna(0)  # Convert to numeric
+            
+            # Step 4: Prepare features (X) and target (y)
+            X = df.drop(columns=['Fire_Occurred'])
+            y = df['Fire_Occurred']
 
             # Ensure all features are numeric
-            X = X.select_dtypes(include=[float, int, np.number])
+            X = X.select_dtypes(include=[np.number])
 
-            # Step 4: Apply balancing technique
+            # Step 5: Apply balancing technique
             if balance_technique == "SMOTE":
                 resampler = SMOTE(sampling_strategy=sampling_ratio_value, random_state=42)
             elif balance_technique == "NearMiss-3":
@@ -749,16 +751,16 @@ class ForestFireApp(QMainWindow):
             # Resample the dataset
             X_resampled, y_resampled = resampler.fit_resample(X, y)
 
-            # Step 5: Restore date column if applicable
-            if 'date_ordinal' in df.columns:
-                X_resampled['date'] = X_resampled['date_ordinal'].apply(lambda x: pd.Timestamp.fromordinal(int(x)))
-                X_resampled = X_resampled.drop(columns=['date_ordinal'])
+            # Step 6: Restore Date column if applicable
+            if 'Date_Ordinal' in df.columns:
+                X_resampled['Date'] = X_resampled['Date_Ordinal'].apply(lambda x: pd.Timestamp.fromordinal(int(x)))
+                X_resampled.drop(columns=['Date_Ordinal'], inplace=True)
 
             # Combine resampled features and target
             balanced_df = X_resampled.copy()
             balanced_df['Fire_Occurred'] = y_resampled
 
-            # Step 6: Save the balanced dataset
+            # Step 7: Save the balanced dataset
             output_path = file_path.replace(".csv", "_balanced.csv")
             balanced_df.to_csv(output_path, index=False)
 
@@ -770,7 +772,6 @@ class ForestFireApp(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"An error occurred:\n{str(e)}")
             self.terminal_output.append(f"Error balancing data: {str(e)}")
-
 
 if __name__ == "__main__":
     import sys
